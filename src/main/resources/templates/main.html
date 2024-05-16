@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+</head>
+<body>
+<div class="bg-yellow-400"
+     th:with="notebookList=${mainDataDto.notebookList},
+        noteList=${mainDataDto.noteList},
+        targetNotebook=${mainDataDto.targetNotebook},
+        targetNote=${mainDataDto.targetNote}">
+    <div class="bg-blue-300">
+        <a href="/">logo</a>
+    </div>
+    <div class="bg-red-600 flex">
+        <div class="bg-indigo-300 w-[20%]">
+            <ul class="menu h-[100%] overflow-scroll">
+                <li th:each="notebook : ${notebookList}"
+                    th:with="basic='w-[90%] p-[10px]'">
+                    <th:block th:if="${!#lists.isEmpty(notebook.children)}">
+                        <details open>
+                            <summary class="flex p-0"><a th:class="${basic}"
+                                                         th:classappend="${notebook.id == targetNotebook.id} ? 'bg-blue-600':''"
+                                                         th:href="@{|/books/${notebook.id}|}"
+                                                         th:text="${notebook.name}"></a></summary>
+                            <ul>
+                                <li th:each="child : ${notebook.children}">
+                                    <a th:class="${basic}"
+                                       th:classappend="${child.id == targetNotebook.id} ? 'bg-blue-600' : '' "
+                                       th:href="@{|/books/${child.id}|}" th:text="${child.name}"></a>
+                                </li>
+                            </ul>
+                        </details>
+                    </th:block>
+                    <th:block th:if="${#lists.isEmpty(notebook.children) and notebook.parent == null}">
+                        <a th:class="${basic}"
+                           th:classappend="${notebook.id == targetNotebook.id} ? 'bg-blue-600' : '' "
+                           th:href="@{|/books/${notebook.id}|}" th:text="${notebook.name}"></a>
+                    </th:block>
+                </li>
+            </ul>
+
+            <form th:action="@{|/books/write|}" method="post">
+                <input type="submit" value="추가">
+            </form>
+
+            <form th:action="@{|/groups/${targetNotebook.id}/books/write|}" method="post">
+                <input type="submit" value="하위 노트북 추가">
+            </form>
+
+            <form th:action="@{|/books/${targetNotebook.id}/delete|}" method="post">
+                <input type="submit" value="삭제">
+            </form>
+
+            <!-- The button to open modal -->
+            <label for="my_modal_6" class="btn">Open Rename Form</label>
+            <label for="my_modal_7" class="btn">검색</label>
+
+            <div class="bg-blue-300">
+                <a href="/logout" class="text-white">로그아웃</a>
+            </div>
+
+            <!-- Modal structure with form inside -->
+            <input type="checkbox" id="my_modal_6" class="modal-toggle" />
+            <div class="modal" role="dialog">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg">Rename Notebook</h3>
+                    <form th:action="@{/books/{id}/rename(id=${targetNotebook.id})}" method="post">
+                        <input type="hidden" name="targetNoteId" th:value="${targetNote.id}" />
+                        <input type="text" name="newName" placeholder="바꿀 이름을 입력해주세요" required class="input input-bordered w-full max-w-xs">
+                        <div class="modal-action">
+                            <button type="submit" class="btn">이름 변경</button>
+                            <label for="my_modal_6" class="btn">Close</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <    <!-- 검색 모달 구조 -->
+            <input type="checkbox" id="my_modal_7" class="modal-toggle"/>
+            <div class="modal" role="dialog">
+                <div class="modal-box w-11/12 max-w-5xl h-4/5"> <!-- 모달의 크기를 조정 -->
+                    <h3 class="font-bold text-lg">검색</h3>
+                    <form id="searchForm">
+                        <input type="text" id="searchInput" placeholder="검색 키워드를 입력하세요" class="input input-bordered w-full max-w-xs" />
+                        <button type="button" id="searchButton" class="btn btn-primary mt-2">검색</button>
+                    </form>
+                    <div id="searchResults" class="mt-4 h-[calc(100vh-12rem)] overflow-y-auto"> <!-- 검색 결과 영역 높이 조정 -->
+                        <div id="notebookList">
+                            <!-- 모든 노트북 출력 -->
+                            <h4 class="font-bold">노트북</h4>
+                            <!-- 노트북 목록 출력 -->
+                            <ul>
+                                <li th:each="notebook : ${notebookList}">
+                                    <a th:href="@{|/books/${notebook.id}|}" th:text="${notebook.name}"></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="noteList" class="mt-4 h-[calc(100vh-12rem)] overflow-y-auto">
+                            <!-- 모든 노트 출력 -->
+                            <h4 class="font-bold">노트</h4>
+                            <!-- 노트 목록 출력 -->
+                            <ul>
+                                <!-- 노트 출력은 JavaScript에서 처리됨 -->
+                            </ul>
+                        </div>
+                        <!-- 검색 결과가 여기에 표시됩니다 -->
+                    </div>
+                    <div class="modal-action">
+                        <label for="my_modal_7" class="btn">Close</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-red-300 w-[20%] h-[800px] text-center ">
+            <ul class="h-[100%] overflow-scroll">
+                <li th:each="note : ${noteList}" th:class="${note.id == targetNote.id} ? 'bg-blue-600' : ''">
+                    <a th:href="@{|/books/${targetNotebook.id}/notes/${note.id}|}" th:text="${note.title}"></a>
+                </li>
+            </ul>
+            <form th:action="@{|/books/${targetNotebook.id}/notes/write|}" method="post">
+                <input type="submit" value="추가">
+            </form>
+            <!-- 정렬 옵션 선택 폼 -->
+            <form th:action="@{|/books/${targetNotebook.id}/notes/sorted|}" method="get" class="mb-4">
+                <label for="sortBy">정렬 기준:</label>
+                <select name="sortBy" id="sortBy" class="select select-bordered">
+                    <option value="title">제목</option>
+                    <option value="createDate">생성일</option>
+                </select>
+                <button type="submit" class="btn btn-primary ml-2">정렬</button>
+            </form>
+        </div>
+        <div class="bg-green-300 w-[60%]">
+            <form th:action="@{|/books/${targetNotebook.id}/notes/${targetNote.id}/update|}" method="post" id="updateForm">
+                <div>
+                    <input type="hidden" name="id" th:value="${targetNote.id}">
+                </div>
+                <div>
+                    <input type="text" name="title" th:value="${targetNote.title}">
+                </div>
+                <div>
+                    <div id="editor" th:text="${targetNote.content}"></div>
+                    <textarea name="content" id="content" hidden></textarea>
+                </div>
+                <div>
+                    <input type="button" value="수정" onclick="updateForm()">
+                </div>
+            </form>
+            <form th:action="@{|/books/${targetNotebook.id}/notes/${targetNote.id}/delete|}" method="post" id="deleteForm">
+                <input type="button" value="삭제" onclick="deleteForm();">
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var searchButton = document.getElementById('searchButton');
+        var searchInput = document.getElementById('searchInput');
+        var searchResults = document.getElementById('searchResults');
+
+        searchButton.addEventListener('click', function () {
+            var keyword = searchInput.value.trim();
+            if (keyword) {
+                fetch('/books/' + encodeURIComponent(keyword) + '/notes/search?keyword=' + encodeURIComponent(keyword))
+                    .then(response => response.json())
+                    .then(data => {
+                        searchResults.innerHTML = ''; // 기존 검색 결과를 초기화
+                        const [filteredNotebooks, filteredNotes] = data;
+
+                        // 노트북 검색 결과 출력
+                        if (filteredNotebooks.length > 0) {
+                            var notebookSection = document.createElement('div');
+                            notebookSection.innerHTML = '<h4 class="font-bold">노트북</h4>';
+                            var notebookList = document.createElement('ul');
+                            filteredNotebooks.forEach(function (notebook) {
+                                var notebookItem = document.createElement('li');
+                                var notebookLink = document.createElement('a');
+                                notebookLink.href = '/books/' + notebook.id;
+                                notebookLink.innerText = notebook.name;
+                                notebookLink.classList.add('block', 'p-2', 'bg-gray-200', 'mb-2', 'rounded');
+                                notebookItem.appendChild(notebookLink);
+                                notebookList.appendChild(notebookItem);
+                            });
+                            notebookSection.appendChild(notebookList);
+                            searchResults.appendChild(notebookSection);
+                        }
+
+                        // 노트 검색 결과 출력
+                        if (filteredNotes.length > 0) {
+                            var noteSection = document.createElement('div');
+                            noteSection.innerHTML = '<h4 class="font-bold">노트</h4>';
+                            var noteList = document.createElement('ul');
+                            filteredNotes.forEach(function (note) {
+                                var noteItem = document.createElement('li');
+                                var noteLink = document.createElement('a');
+                                noteLink.href = '/books/' + note.notebook.id + '/notes/' + note.id;
+                                noteLink.innerText = note.title;
+                                noteLink.classList.add('block', 'p-2', 'bg-gray-200', 'mb-2', 'rounded');
+                                noteItem.appendChild(noteLink);
+                                noteList.appendChild(noteItem);
+                            });
+                            noteSection.appendChild(noteList);
+                            searchResults.appendChild(noteSection);
+                        }
+
+                        // 검색 결과가 없을 경우 메시지 표시
+                        if (filteredNotebooks.length === 0 && filteredNotes.length === 0) {
+                            searchResults.innerHTML = '<p class="text-center">검색 결과가 없습니다.</p>';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                alert('검색어를 입력해주세요.');
+            }
+        });
+    });
+</script>
+<script>
+    let editor;
+
+ document.addEventListener("DOMContentLoaded", function () {
+     editor = new toastui.Editor({
+         el: document.querySelector('#editor'),
+         height: '400px',
+         initialEditType: 'markdown',
+         previewStyle: 'vertical',
+         initialValue: document.querySelector('#editor').textContent.trim()
+     });
+ });
+
+ function updateForm() {
+     const form = document.getElementById("updateForm");
+     const editorContent = editor.getMarkdown();
+     document.getElementById('content').value = editorContent;
+     if (confirm("수정하시겠습니까?")) {
+         form.submit();
+     }
+ }
+
+ function deleteForm() {
+     const form = document.getElementById("deleteForm");
+     if (confirm("삭제하시겠습니까?")) {
+         form.submit();
+     }
+ }
+</script>
+</body>
+</html>

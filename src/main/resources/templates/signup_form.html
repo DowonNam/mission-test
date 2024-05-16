@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">회원 가입</h2>
+        </div>
+        <form th:action="@{/signup}" th:object="${memberForm}" method="post" class="mt-8 space-y-6">
+            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                <p>입력 정보를 확인해 주세요.</p>
+            </div>
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                    <label for="login-id" class="sr-only">로그인 ID</label>
+                    <input th:field="*{loginId}" id="login-id" name="loginId" type="text" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="로그인 ID">
+                    <div th:if="${#fields.hasErrors('loginId')}" class="text-red-500 text-sm">
+                        <p th:errors="*{loginId}">로그인 ID 오류</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="password" class="sr-only">비밀번호</label>
+                    <input th:field="*{password}" id="password" name="password" type="password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="비밀번호">
+                    <div th:if="${#fields.hasErrors('password')}" class="text-red-500 text-sm">
+                        <p th:errors="*{password}">비밀번호 오류</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="nickname" class="sr-only">닉네임</label>
+                    <input th:field="*{nickname}" id="nickname" name="nickname" type="text" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="닉네임">
+                    <div th:if="${#fields.hasErrors('nickname')}" class="text-red-500 text-sm">
+                        <p th:errors="*{nickname}">닉네임 오류</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="email" class="sr-only">이메일</label>
+                    <input th:field="*{email}" id="email" name="email" type="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="이메일">
+                    <div th:if="${#fields.hasErrors('email')}" class="text-red-500 text-sm">
+                        <p th:errors="*{email}">이메일 오류</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    가입하기
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
